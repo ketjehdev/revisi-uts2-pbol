@@ -1,0 +1,115 @@
+<!--maria gresia plena br purba-->
+<!--235314094-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Books</title>
+    <script>
+        async function checkRoleAndDisplayForm() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Anda belum login. Harap login terlebih dahulu.");
+                window.location.href = "/login.html";
+                return;
+            }
+            try {
+                const response = await fetch("/books", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const products = await response.json();
+                    const role = response.headers.get("role");
+                    console.log("User role:", role);
+                    const productList = document.getElementById("book-list");
+                    productList.innerHTML = "";
+                    products.forEach(product => {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = `${product.name}: ${product.description}`;
+                        if (role === "ADMIN") {
+                            const deleteButton = document.createElement("button");
+                            deleteButton.textContent = "Hapus";
+                            deleteButton.onclick = () => deleteProduct(product.id);
+                            listItem.appendChild(deleteButton);
+                        }
+                        productList.appendChild(listItem);
+                    });
+                    if (role === "ADMIN") {
+                        document.getElementById("add-book-form").style.display = "block";
+                    }
+                } else if (response.status === 403) {
+                    alert("Anda tidak memiliki akses ke buku.");
+                }
+            } catch (error) {
+                console.error("Error saat memeriksa role:", error);
+                alert("Terjadi kesalahan saat memuat halaman.");
+            }
+        }
+        async function addBook() {
+            const token = localStorage.getItem("token");
+            const title = document.getElementById("book-title").value;
+            const author = document.getElementById("book-author").value;
+            const publicationYear = document.getElementById("book-publicationYear").value;
+
+            try {
+                const response = await fetch("/books", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ title, author, publicationYear })
+                });
+                if (response.ok) {
+                    alert("Buku berhasil ditambahkan!");
+                    window.location.reload();
+                } else {
+                    alert("Gagal menambahkan buku: " + response.statusText);
+                }
+            } catch (error) {
+                console.error("Error saat menambahkan buku:", error);
+                alert("Terjadi kesalahan saat menambahkan buku.");
+            }
+        }
+
+        async function deleteBook(bookId) {
+            const token = localStorage.getItem("token");
+            try {
+                const response = await fetch(`/books/${bookId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    alert("Buku berhasil dihapus!");
+                    window.location.reload();
+                } else {
+                    alert("Gagal menghapus buku: " + response.statusText);
+                }
+            } catch (error) {
+                console.error("Error saat menghapus buku:", error);
+                alert("Terjadi kesalahan saat menghapus buku.");
+            }
+        }
+        window.onload = () => {
+            checkRoleAndDisplayForm();
+        };
+    </script>
+<body>
+<h1>Daftar Produk</h1>
+<ul id="book-list">
+</ul>
+<div id="add-book-form" style="display: none;">
+    <h2>Tambah Buku</h2>
+    <label for="book-title">Nama Buku:</label>
+    <input type="text" id="book-title" required>
+    <label for="book-author">Author:</label>
+    <input type="text" id="book-author" required>
+    <button onclick="addBook()">Tambah Buku</button>
+</div>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <script>
+      async function login(event) {
+        event.preventDefault();
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        try {
+          console.log("Sending login request with username:", username);
+          const response = await fetch("/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            alert("Login berhasil! Token Anda: " + data.token);
+            localStorage.setItem("token", data.token);
+            alert("Token stored in localStorage: " + data.token);
+
+            // Redirect to Menu.html after successful login
+            window.location.href = "/Menu.html";
+          } else if (response.status === 401) {
+            alert("Login gagal. Username atau password salah.");
+          } else {
+            alert("Terjadi kesalahan saat login. Status: " + response.status);
+          }
+        } catch (error) {
+          console.error("Error saat login:", error);
+          alert("Terjadi kesalahan saat login.");
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <style>
+      body {
+        background-image: url("http://m.gettywallpapers.com/wp-content/uploads/2023/12/Cute-Cartoon-Laptop-Wallpaper.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      form {
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      label,
+      input,
+      button {
+        display: block;
+        margin: 10px auto;
+      }
+
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #4caf50;
+        color: white;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+    </style>
+    <h1>Login</h1>
+    <form onsubmit="login(event)">
+      <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required />
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <button type="submit">Login</button>
+    </form>
+  </body>
+</html>

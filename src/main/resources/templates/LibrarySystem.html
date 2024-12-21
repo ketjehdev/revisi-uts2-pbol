@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library System</title>
+    <script>
+        async function loadUsers() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Anda belum login. Harap login terlebih dahulu.");
+                window.location.href = "/login.html";
+                return;
+            }
+            try {
+                const response = await fetch("/users", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const users = await response.json();
+                    const userList = document.getElementById("user-list");
+                    userList.innerHTML = "";
+                    users.forEach(user => {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = `${user.name} - ${user.email}`;
+
+                        const editButton = document.createElement("button");
+                        editButton.textContent = "Edit";
+                        editButton.onclick = () => editUser(user.id);
+
+                        const deleteButton = document.createElement("button");
+                        deleteButton.textContent = "Hapus";
+                        deleteButton.onclick = () => deleteUser(user.id);
+
+                        listItem.appendChild(editButton);
+                        listItem.appendChild(deleteButton);
+                        userList.appendChild(listItem);
+                    });
+                } else {
+                    alert("Gagal memuat daftar pengguna: " + response.statusText);
+                }
+            } catch (error) {
+                console.error("Error saat memuat daftar pengguna:", error);
+                alert("Terjadi kesalahan saat memuat pengguna.");
+            }
+        }
+
+        async function addUser() {
+            const token = localStorage.getItem("token");
+            const name = document.getElementById("user-name").value;
+            const email = document.getElementById("user-email").value;
+
+            try {
+                const response = await fetch("/users", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ name, email })
+                });
+                if (response.ok) {
+                    alert("Pengguna berhasil ditambahkan!");
+                    window.location.reload();
+                } else {
+                    alert("Gagal menambahkan pengguna: " + response.statusText);
+                }
+            } catch (error) {
+                console.error("Error saat menambahkan pengguna:", error);
+                alert("Terjadi kesalahan saat menambahkan pengguna.");
+            }
+        }
+
+        async function editUser(userId) {
+            const token = localStorage.getItem("token");
+            const newName = prompt("Masukkan nama baru:");
+            const newEmail = prompt("Masukkan email baru:");
+            if (!newName || !newEmail) {
+                alert("Nama dan email tidak boleh kosong.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/users/${userId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ name: newName, email: newEmail })
+                });
+                if (response.ok) {
+                    alert("Pengguna berhasil diperbarui!");
+                    window.location.reload();
+                } else {
+                    alert("Gagal memperbarui pengguna: " + response.statusText);
+                }
+            } catch (error) {
+                console.error("Error saat memperbarui pengguna:", error);
+                alert("Terjadi kesalahan saat memperbarui pengguna.");
+            }
+        }
+
+        async function deleteUser(userId) {
+            const token = localStorage.getItem("token");
+            if (!confirm("Apakah Anda yakin ingin menghapus pengguna ini?")) {
+                return;
+            }
+            try {
+                const response = await fetch(`/users/${userId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    alert("Pengguna berhasil dihapus!");
+                    window.location.reload();
+                } else {
+                    alert("Gagal menghapus pengguna: " + response.statusText);
+                }
+            } catch (error) {
+                console.error("Error saat menghapus pengguna:", error);
+                alert("Terjadi kesalahan saat menghapus pengguna.");
+            }
+        }
+
+        async function borrowBook() {
+            const token = localStorage.getItem("token");
+            const bookId = document.getElementById("borrow-book-id").value;
+
+            try {
+                const response = await fetch("/borrow", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ bookId })
+                });
+                if (response.ok) {
+                    alert("Buku berhasil dipinjam!");
+                    window.location.reload();
+                } else {
+                    alert("Gagal meminjam buku: " + response.statusText);
+                }
+            } catch (error) {
+                console.error("Error saat meminjam buku:", error);
+                alert("Terjadi kesalahan saat meminjam buku.");
+            }
+        }
+
+        async function returnBook() {
+            const token = localStorage.getItem("token");
+            const bookId = document.getElementById("return-book-id").value;
+
+            try {
+                const response = await fetch("/return", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ bookId })
+                });
+                if (response.ok) {
+                    alert("Buku berhasil dikembalikan!");
+                    window.location.reload();
+                } else {
+                    alert("Gagal mengembalikan buku: " + response.statusText);
+                }
+            } catch (error) {
+                console.error("Error saat mengembalikan buku:", error);
+                alert("Terjadi kesalahan saat mengembalikan buku.");
+            }
+        }
+
+        window.onload = () => {
+            loadUsers();
+        };
+    </script>
+</head>
+<body>
+<h1>Manajemen Pengguna</h1>
+<ul id="user-list"></ul>
+<div>
+    <h2>Tambah Pengguna</h2>
+    <label for="user-name">Nama:</label>
+    <input type="text" id="user-name" required>
+    <label for="user-email">Email:</label>
+    <input type="email" id="user-email" required>
+    <button onclick="addUser()">Tambah Pengguna</button>
+</div>
+<hr>
+<h1>Peminjaman Buku</h1>
+<div>
+    <h2>Pinjam Buku</h2>
+    <label for="borrow-book-id">ID Buku:</label>
+    <input type="text" id="borrow-book-id" required>
+    <button onclick="borrowBook()">Pinjam Buku</button>
+</div>
+<hr>
+<h1>Pengembalian Buku</h1>
+<div>
+    <h2>Kembalikan Buku</h2>
+    <label for="return-book-id">ID Buku:</label>
+    <input type="text" id="return-book-id" required>
+    <button onclick="returnBook()">Kembalikan Buku</button>
+</div>
+</body>
+</html>

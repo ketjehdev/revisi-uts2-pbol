@@ -1,0 +1,93 @@
+<!--maria gresia plena br purba-->
+<!--235314094-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
+        }
+
+        body {
+            background-image: url('http://m.gettywallpapers.com/wp-content/uploads/2023/12/Cute-Cartoon-Laptop-Wallpaper.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
+        }
+
+        .content {
+            position: relative;
+            top: 40%;
+            transform: translateY(-50%);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .button {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            background-color: rgb(64, 93, 63);
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background-color: rgb(118, 157, 108);
+        }
+
+        h1 {
+            font-family: Constantia;
+            font-size: 35px;
+            font-weight: bold;
+            color: #263825;
+            text-shadow: 2px 2px 5px rgb(255, 255, 255);
+            margin-bottom: 30px;
+        }
+    </style>
+    <script>
+        // Check if the token exists in localStorage
+        window.onload = function() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("You must be logged in to access this page.");
+                window.location.href = "/login.html"; // Redirect to login page
+            } else {
+                // Optionally, you can use the token to authenticate further requests
+                console.log("User token found:", token);
+            }
+        };
+    </script>
+</head>
+<body>
+
+<div class="content">
+    <h1>Menu</h1>
+    <div class="button-container">
+        <a href="/books.html" class="button">Book List</a>
+        <a href="/user.html" class="button">User List</a>
+        <a href="/return" class="button">Return System</a>
+        <a href="/borrow" class="button">Borrow System</a>
+    </div>
+</div>
+</body>
+</html>
